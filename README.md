@@ -145,6 +145,7 @@ docker compose up --build
 API → http://localhost:5001   
 Swagger → http://localhost:5001/swagger
 PostgreSQL → localhost:5433
+PostgreSQL → localhost:5433
 
 
 ---
