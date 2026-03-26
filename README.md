@@ -134,11 +134,12 @@ AwesomeFiles/
 
 🐳 Через Docker (РЕКОМЕНДУЕТСЯ)
 
-bash
+```
 git clone https://github.com/fairwix/Awesome-Files.git
 cd AwesomeFiles
 
 docker compose up --build
+```
 После запуска:
 
 API → http://localhost:5001
