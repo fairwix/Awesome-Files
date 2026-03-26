@@ -130,22 +130,20 @@ AwesomeFiles/
 
 ---
 
-## 🚀 Быстрый запуск
+🚀 Быстрый запуск
 
-### 🐳 Через Docker (РЕКОМЕНДУЕТСЯ)
+🐳 Через Docker (РЕКОМЕНДУЕТСЯ)
 
-```bash
-git clone <your-repo>
+bash
+git clone https://github.com/fairwix/Awesome-Files.git
 cd AwesomeFiles
 
-docker-compose up --build
-```
-
+docker compose up --build
 После запуска:
 
-* API → [http://localhost:5001](http://localhost:5001)
-* Swagger → [http://localhost:5001/swagger](http://localhost:5001/swagger)
-* PostgreSQL → localhost:5433
+API → http://localhost:5001
+Swagger → http://localhost:5001/swagger
+PostgreSQL → localhost:5433
 
 ---
 
