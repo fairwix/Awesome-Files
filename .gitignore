@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+.idea/
+.vs/
+*.sln.iml
+TestResults/
+coverage/
+*.trx
+*.cobertura.xml
+*.coverage
+*.log
+.DS_Store
+*.zip
+all_*.txt
