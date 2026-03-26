@@ -290,7 +290,6 @@ auto file1.txt file2.txt ./downloads
 * API (Controllers, Middleware)
 * Domain
 
----
 
 ### ▶️ Запуск тестов
 
@@ -298,7 +297,6 @@ auto file1.txt file2.txt ./downloads
 dotnet test
 ```
 
----
 
 ### 📈 Запуск с генерацией покрытия
 
@@ -311,15 +309,11 @@ dotnet clean
 dotnet restore
 ```
 
----
-
 #### 2. Запуск тестов с покрытием
 
 ```bash
 dotnet test --collect:"XPlat Code Coverage" --results-directory ./coverage
 ```
-
----
 
 #### 3. Генерация HTML отчёта
 
@@ -329,8 +323,6 @@ reportgenerator \
 "-targetdir:./coverage/report" \
 "-reporttypes:Html"
 ```
-
----
 
 #### 4. Открытие отчёта
 
@@ -351,8 +343,6 @@ xdg-open ./coverage/report/index.html
 ```bash
 start ./coverage/report/index.html
 ```
-
----
 
 ### 📁 Результат
 
