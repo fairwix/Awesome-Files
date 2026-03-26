@@ -268,16 +268,99 @@ auto file1.txt file2.txt ./downloads
 
 ---
 
+Отлично, это прям то, что нужно — **наличие реального coverage pipeline сильно бустит уровень проекта**. Но сейчас у тебя это выглядит как просто набор команд.
+
+Я перепишу это в **профессиональный блок README уровня production**, чтобы выглядело аккуратно, понятно и “как у опытного разработчика”.
+
+---
+
 ## 🧪 Тестирование
 
-```bash
-dotnet test
-```
+Проект покрыт unit-тестами с использованием современных инструментов тестирования.
 
 ### 📊 Покрытие
 
 * Line coverage: **85%**
 * Branch coverage: **77%**
+
+Покрываются:
+
+* Application (UseCases)
+* Infrastructure (Services)
+* API (Controllers, Middleware)
+* Domain
+
+---
+
+### ▶️ Запуск тестов
+
+```bash
+dotnet test
+```
+
+---
+
+### 📈 Запуск с генерацией покрытия
+
+Для анализа покрытия используется встроенный collector + ReportGenerator.
+
+#### 1. Очистка и восстановление
+
+```bash
+dotnet clean
+dotnet restore
+```
+
+---
+
+#### 2. Запуск тестов с покрытием
+
+```bash
+dotnet test --collect:"XPlat Code Coverage" --results-directory ./coverage
+```
+
+---
+
+#### 3. Генерация HTML отчёта
+
+```bash
+reportgenerator \
+"-reports:./coverage/**/coverage.cobertura.xml" \
+"-targetdir:./coverage/report" \
+"-reporttypes:Html"
+```
+
+---
+
+#### 4. Открытие отчёта
+
+**macOS:**
+
+```bash
+open ./coverage/report/index.html
+```
+
+**Linux:**
+
+```bash
+xdg-open ./coverage/report/index.html
+```
+
+**Windows:**
+
+```bash
+start ./coverage/report/index.html
+```
+
+---
+
+### 📁 Результат
+
+После выполнения отчёт будет доступен по пути:
+
+```bash
+./coverage/report/index.html
+```
 
 ---
 
