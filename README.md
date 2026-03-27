@@ -126,6 +126,8 @@ dotnet test
 | Line coverage | **85%** |
 | Branch coverage | **77%** |
 
+![Coverage Report](coverage-report.png)
+
 ### Генерация отчёта о покрытии
 
 ```bash
