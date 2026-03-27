@@ -1,386 +1,119 @@
-# 🚀 Awesome Files
+Awesome Files
 
-**.NET • PostgreSQL • Docker • CLI • Tests**
+Асинхронный сервис архивирования файлов. REST API + CLI-клиент.
+.NET 9, Clean Architecture, Docker, PostgreSQL для логов.
 
-Сервис для асинхронного архивирования файлов с REST API и CLI клиентом.
+📋 Оглавление
 
-**Backend** — REST API для управления файлами и создания ZIP-архивов.  
-**Консольный клиент** — POSIX-совместимая утилита для взаимодействия с бэкендом.
+Архитектура
+Технологии
+Запуск
+API
+CLI-клиент
+Тестирование
+Docker
+Безопасность
+🏗 Архитектура
 
----
+Clean Architecture с чётким разделением ответственности:
 
-## 📋 Оглавление
+text
+Domain      → сущности, статусы, бизнес-правила
+Application → use cases, DTO, порты (интерфейсы)
+Infrastructure → реализация портов: файловая система, очередь, архивация, кэш
+API         → контроллеры, middleware, Swagger
+Client      → CLI-клиент (System.CommandLine)
+Tests       → unit-тесты (xUnit, Moq)
+Ключевые решения:
 
-* [✨ Возможности](#-возможности)
-* [🛠 Технологический стек](#-технологический-стек)
-* [🏗 Архитектура](#-архитектура)
-* [⚙️ Как это работает](#️-как-это-работает)
-* [🚀 Быстрый запуск](#-быстрый-запуск)
-* [📡 API Endpoints](#-api-endpoints)
-* [💻 CLI клиент](#-cli-клиент)
-* [🧪 Тестирование](#-тестирование)
-* [📦 Docker](#-docker)
-* [🔒 Безопасность](#-безопасность)
-* [📈 Соответствие ТЗ](#-соответствие-тз)
+BackgroundService + ConcurrentQueue + SemaphoreSlim — асинхронная очередь задач
+ConcurrentDictionary — in-memory хранилище задач и кэш архивов
+lock в ArchiveTask — потокобезопасное изменение статуса
+Path.GetFullPath + проверка StartsWith — защита от path traversal
+Serilog — структурированное логирование в консоль и PostgreSQL
+System.CommandLine — POSIX-совместимый CLI
+🛠 Технологии
 
----
+Компонент	Стек
+Backend	.NET 9, ASP.NET Core, Serilog
+CLI	System.CommandLine, HttpClient
+База	PostgreSQL 15 (логи)
+Контейнеризация	Docker, Docker Compose
+Тесты	xUnit, Moq, FluentAssertions, ReportGenerator
+Архитектура	Clean Architecture, DI, async/await
+🚀 Запуск
 
-## ✨ Возможности
+Docker (рекомендуется)
 
-* 📂 Получение списка файлов
-* 📦 Асинхронное создание ZIP архивов
-* ⏳ Отслеживание статуса задач
-* ⬇️ Скачивание архивов
-* ⚡ Кэширование архивов (повторные запросы ускоряются)
-* 🧵 Очередь фоновых задач
-* 📊 Логирование в PostgreSQL + консоль
-* 💻 CLI клиент (POSIX стиль)
-* 🤖 Auto режим (одной командой всё сделать)
-* 🧪 Покрытие тестами ~85%
-
----
-
-## 🛠 Технологический стек
-
-### Backend
-
-* .NET 9 + ASP.NET Core Web API
-* Clean Architecture
-* Serilog — логирование
-* BackgroundService — фоновые задачи
-* ConcurrentDictionary — хранение состояния
-* CancellationToken — во всех async операциях
-
-### CLI
-
-* System.CommandLine
-* HttpClient (typed)
-
-### Инфраструктура
-
-* Docker + Docker Compose
-* PostgreSQL 15 — хранение логов
-
-### Тестирование
-
-* xUnit
-* Moq
-* FluentAssertions
-* ReportGenerator
-
----
-
-## 🏗 Архитектура
-
-```bash
-AwesomeFiles/
-├── AwesomeFiles.Domain
-├── AwesomeFiles.Application
-├── AwesomeFiles.Infrastructure
-├── AwesomeFiles.Api
-├── AwesomeFiles.Client
-└── AwesomeFiles.Tests
-```
-
-### Слои:
-
-**Domain**
-
-* ArchiveTask
-* ArchiveStatus
-* Бизнес-правила
-
-**Application**
-
-* UseCases
-* DTO
-* Валидация
-
-**Infrastructure**
-
-* FileService
-* ArchiveService (ядро)
-* BackgroundTaskQueue
-* ArchiveWorker
-
-**API**
-
-* Controllers
-* Middleware
-* Swagger
-
-**Client**
-
-* CLI команды
-* Auto режим
-
----
-
-## ⚙️ Как это работает
-
-```text
-1. Пользователь → POST /archives
-2. Создаётся ArchiveTask
-3. Задача кладётся в очередь
-4. BackgroundWorker обрабатывает
-5. Архив создаётся или берётся из кэша
-6. Пользователь проверяет статус
-7. Скачивает архив
-```
-
----
-
-## 🚀 Быстрый запуск
-
-🐳 Через Docker (РЕКОМЕНДУЕТСЯ)
-
-```
+bash
 git clone https://github.com/fairwix/Awesome-Files.git
 cd AwesomeFiles
-
 docker compose up --build
-```
-После запуска:
+API: http://localhost:5001
+Swagger: http://localhost:5001/swagger
 
-API → http://localhost:5001   
-Swagger → http://localhost:5001/swagger
+Локально
 
-
----
-
-### 🖥 Локально (без Docker)
-
-#### Требования:
-
-* .NET 9 SDK
-* PostgreSQL (опционально)
-
-```bash
+bash
 cd AwesomeFiles.Api
 dotnet run
-```
+📡 API
 
----
+Метод	URL	Описание
+GET	/api/files	Список файлов
+POST	/api/archives	Создать архив → { "id": "..." }
+GET	/api/archives/{id}	Статус
+GET	/api/archives/{id}/download	Скачать архив
+Статусы: Pending → InProgress → Completed / Failed
 
-## 📡 API Endpoints
+Коды ответов: 200, 202, 400, 404, 500
 
-### 📂 Получить файлы
+💻 CLI-клиент
 
-```http
-GET /api/files
-```
+POSIX-совместимая утилита с авто-режимом.
 
----
-
-### 📦 Создать архив
-
-```http
-POST /api/archives
-```
-
-```json
-{
-  "fileNames": ["file1.txt", "file2.txt"]
-}
-```
-
----
-
-### ⏳ Статус
-
-```http
-GET /api/archives/{id}
-```
-
----
-
-### ⬇️ Скачать
-
-```http
-GET /api/archives/{id}/download
-```
-
----
-
-## 💻 CLI клиент
-
-### 🚀 Запуск
-
-```bash
+bash
 dotnet run --project AwesomeFiles.Client
-```
+Команда	Пример	Описание
+list	list	Список файлов
+create-archive	create-archive file1.txt file2.txt	Создать архив → ID
+status	status <id>	Статус задачи
+download	download <id> ./downloads	Скачать архив
+auto	auto file1.txt file2.txt ./downloads	Создать → ждать → скачать
+Поддержка ENV: AWESOME_FILES_API_URL (по умолчанию http://localhost:5083)
 
----
+🧪 Тестирование
 
-### 🔧 ENV
-
-```bash
-export AWESOME_FILES_API_URL=http://localhost:5001
-```
-
----
-
-### 📟 Команды
-
-#### 📂 Список файлов
-
-```bash
-list
-```
-
----
-
-#### 📦 Создать архив
-
-```bash
-create-archive file1.txt file2.txt
-```
-
----
-
-#### ⏳ Статус
-
-```bash
-status <id>
-```
-
----
-
-#### ⬇️ Скачать
-
-```bash
-download <id> ./downloads
-```
-
----
-
-#### 🤖 AUTO режим (⭐)
-
-```bash
-auto file1.txt file2.txt ./downloads
-```
-
-👉 Полный цикл:
-
-* создать
-* дождаться
-* скачать
-
----
-
-Отлично, это прям то, что нужно — **наличие реального coverage pipeline сильно бустит уровень проекта**. Но сейчас у тебя это выглядит как просто набор команд.
-
-Я перепишу это в **профессиональный блок README уровня production**, чтобы выглядело аккуратно, понятно и “как у опытного разработчика”.
-
----
-
-## 🧪 Тестирование
-
-Проект покрыт unit-тестами с использованием современных инструментов тестирования.
-
-### 📊 Покрытие
-
-* Line coverage: **85%**
-* Branch coverage: **77%**
-
-Покрываются:
-
-* Application (UseCases)
-* Infrastructure (Services)
-* API (Controllers, Middleware)
-* Domain
-
-
-### ▶️ Запуск тестов
-
-```bash
+bash
 dotnet test
-```
+Покрытие
 
+Line: 85%
+Branch: 77%
+Отчёт о покрытии
 
-### 📈 Запуск с генерацией покрытия
-
-Для анализа покрытия используется встроенный collector + ReportGenerator.
-
-#### 1. Очистка и восстановление
-
-```bash
-dotnet clean
-dotnet restore
-```
-
-#### 2. Запуск тестов с покрытием
-
-```bash
+bash
 dotnet test --collect:"XPlat Code Coverage" --results-directory ./coverage
-```
-
-#### 3. Генерация HTML отчёта
-
-```bash
-reportgenerator \
-"-reports:./coverage/**/coverage.cobertura.xml" \
-"-targetdir:./coverage/report" \
-"-reporttypes:Html"
-```
-
-#### 4. Открытие отчёта
-
-**macOS:**
-
-```bash
+reportgenerator -reports:./coverage/**/coverage.cobertura.xml -targetdir:./coverage/report -reporttypes:Html
 open ./coverage/report/index.html
-```
+Что покрыто: Use Cases, сервисы, контроллеры, middleware, клиент (ApiClient, ArchiveClientService)
 
-**Linux:**
+📦 Docker
 
-```bash
-xdg-open ./coverage/report/index.html
-```
+Multi-stage сборка, non-root пользователь.
 
-**Windows:**
+bash
+docker compose up --build
+Сервис	Назначение
+api	ASP.NET Core
+logsdb	PostgreSQL 15 (логи)
+Volumes: ./Files → /app/Files, ./Archives → /app/Archives
 
-```bash
-start ./coverage/report/index.html
-```
+🔒 Безопасность
 
-### 📁 Результат
-
-После выполнения отчёт будет доступен по пути:
-
-```bash
-./coverage/report/index.html
-```
-
----
-
-## 📦 Docker
-
-```bash
-docker-compose up --build
-```
-
-### Сервисы:
-
-* `api` — ASP.NET Core
-* `logsdb` — PostgreSQL
-
----
-
-### Volumes
-
-```bash
-./Files → /app/Files
-./Archives → /app/Archives
-```
-
----
-
-## 🔒 Безопасность
-
-* Проверка path traversal
-* Валидация входных данных
-* Обработка ошибок через middleware
-* Контроль статусов задач
-
----
+Path traversal защита (Path.GetFullPath + StartsWith)
+Валидация входных данных
+Лимит на количество файлов (50)
+CancellationToken во всех асинхронных операциях
+Non-root пользователь в Docker
+Обработка ошибок через middleware с понятными HTTP-статусами
