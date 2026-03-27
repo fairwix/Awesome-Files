@@ -1,7 +1,5 @@
 # Awesome Files
 
-**Тестовое задание (C# Intern / Junior)**
-
 Асинхронный сервис архивирования файлов. REST API + CLI-клиент.  
 .NET 9, Clean Architecture, Docker, PostgreSQL для логов.
 
