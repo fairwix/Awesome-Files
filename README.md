@@ -1,57 +1,71 @@
-Awesome Files
+# Awesome Files
 
-Асинхронный сервис архивирования файлов. REST API + CLI-клиент.
+**Тестовое задание (C# Intern / Junior)**
+
+Асинхронный сервис архивирования файлов. REST API + CLI-клиент.  
 .NET 9, Clean Architecture, Docker, PostgreSQL для логов.
 
-📋 Оглавление
+---
 
-Архитектура
-Технологии
-Запуск
-API
-CLI-клиент
-Тестирование
-Docker
-Безопасность
-🏗 Архитектура
+## 📋 Оглавление
+
+- [Архитектура](#-архитектура)
+- [Технологии](#-технологии)
+- [Запуск](#-запуск)
+- [API](#-api)
+- [CLI-клиент](#-cli-клиент)
+- [Тестирование](#-тестирование)
+- [Docker](#-docker)
+- [Безопасность](#-безопасность)
+
+---
+
+## 🏗 Архитектура
 
 Clean Architecture с чётким разделением ответственности:
-
-text
-Domain      → сущности, статусы, бизнес-правила
+Domain → сущности, статусы, бизнес-правила
 Application → use cases, DTO, порты (интерфейсы)
 Infrastructure → реализация портов: файловая система, очередь, архивация, кэш
-API         → контроллеры, middleware, Swagger
-Client      → CLI-клиент (System.CommandLine)
-Tests       → unit-тесты (xUnit, Moq)
-Ключевые решения:
+API → контроллеры, middleware, Swagger
+Client → CLI-клиент (System.CommandLine)
+Tests → unit-тесты (xUnit, Moq)
 
-BackgroundService + ConcurrentQueue + SemaphoreSlim — асинхронная очередь задач
-ConcurrentDictionary — in-memory хранилище задач и кэш архивов
-lock в ArchiveTask — потокобезопасное изменение статуса
-Path.GetFullPath + проверка StartsWith — защита от path traversal
-Serilog — структурированное логирование в консоль и PostgreSQL
-System.CommandLine — POSIX-совместимый CLI
-🛠 Технологии
+text
 
-Компонент	Стек
-Backend	.NET 9, ASP.NET Core, Serilog
-CLI	System.CommandLine, HttpClient
-База	PostgreSQL 15 (логи)
-Контейнеризация	Docker, Docker Compose
-Тесты	xUnit, Moq, FluentAssertions, ReportGenerator
-Архитектура	Clean Architecture, DI, async/await
-🚀 Запуск
+**Ключевые решения:**
 
-Docker (рекомендуется)
+- `BackgroundService` + `ConcurrentQueue` + `SemaphoreSlim` — асинхронная очередь задач
+- `ConcurrentDictionary` — in-memory хранилище задач и кэш архивов
+- `lock` в `ArchiveTask` — потокобезопасное изменение статуса
+- `Path.GetFullPath` + проверка `StartsWith` — защита от path traversal
+- `Serilog` — структурированное логирование в консоль и PostgreSQL
+- `System.CommandLine` — POSIX-совместимый CLI
 
-bash
+---
+
+## 🛠 Технологии
+
+| Компонент | Стек |
+|-----------|------|
+| Backend | .NET 9, ASP.NET Core, Serilog |
+| CLI | System.CommandLine, HttpClient |
+| База | PostgreSQL 15 (логи) |
+| Контейнеризация | Docker, Docker Compose |
+| Тесты | xUnit, Moq, FluentAssertions, ReportGenerator |
+| Архитектура | Clean Architecture, DI, async/await |
+
+---
+
+## 🚀 Запуск
+
+### Docker (рекомендуется)
+
+```bash
 git clone https://github.com/fairwix/Awesome-Files.git
 cd AwesomeFiles
 docker compose up --build
 API: http://localhost:5001
 Swagger: http://localhost:5001/swagger
-
 Локально
 
 bash
@@ -65,7 +79,6 @@ POST	/api/archives	Создать архив → { "id": "..." }
 GET	/api/archives/{id}	Статус
 GET	/api/archives/{id}/download	Скачать архив
 Статусы: Pending → InProgress → Completed / Failed
-
 Коды ответов: 200, 202, 400, 404, 500
 
 💻 CLI-клиент
@@ -107,8 +120,10 @@ docker compose up --build
 Сервис	Назначение
 api	ASP.NET Core
 logsdb	PostgreSQL 15 (логи)
-Volumes: ./Files → /app/Files, ./Archives → /app/Archives
+Volumes:
 
+./Files → /app/Files
+./Archives → /app/Archives
 🔒 Безопасность
 
 Path traversal защита (Path.GetFullPath + StartsWith)
